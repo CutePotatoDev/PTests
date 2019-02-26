@@ -1,0 +1,120 @@
+{% extends 'layout/main.html' %}
+{% block content %}
+    <div class="ui fixed inverted menu">
+        <div class="ui container">
+            <a class="header item" href="#">
+                Test
+            </a>
+            <div class="right menu">
+                <div class="item">
+                    {{ user }}
+                </div>
+                <div class="item">
+                    {{ uid }}
+                </div>
+                <div class="item">
+                    {% if available %}
+                        {% if complete %}
+                            <font color="green">Completed.</font>
+                        {% else %}
+                            <div id="clock"></div>
+                        {% endif %}
+                    {% else %}
+                        <font color="red">Ended.</font>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $("#clock").countdown({{ timestamp }}, {elapse: false})
+        .on("update.countdown", function(event) {
+            $(this).text(event.strftime("%M:%S"));
+        })
+        .on("finish.countdown", function(event) {
+            $(this).countdown("stop");
+            if (!localStorage.getItem("reload")) {
+                localStorage.setItem("reload", "true");
+                location.reload();
+            } else {
+                localStorage.removeItem("reload");
+            }
+        });
+    </script>
+    {% if available %}
+
+        <div class="ui center aligned grid">
+            <div class="column" id="test_grid">
+                {% if complete %}
+                {% set  total = result | round(1) | int %}
+                <div class="ui {% if total >= 5 %} green {% else %} red {% endif %} message" id="error_msg">
+                    <div class="ui left aligned basic segment" id="endstatus">
+                        <div class="ui header">
+                            Test completed.
+                        </div>
+                        <div class="ui list">
+                            <div class="item">Correct answered: {{ correct }}</div>
+                            <div class="item">Result: {{ result }}</div>
+                            <div class="item">End Result: {{ total }}</div>
+                        </div>
+                        <div class="ui basic segment">
+                            {% if total >= 5 %}
+                                <p>PASSED</p>
+                            {% else %}
+                                <p>NOT PASSED</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                    <form class="ui form" id="question">
+                        <div class="ui left aligned raised segment" id="test_msg">
+                            <div class="field">
+                                <h4 class="ui header">
+                                    {{ question }}
+                                </h4>
+                            </div>
+
+                            {% for id in range(answers|length) %}
+                                <div class="field">
+                                    <div class="ui checkbox">
+                                        <input name="answer" type="checkbox" data-id="{{ id }}">
+                                        <label>{{ answers[id] }}</label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                            <button class="small ui right floated right labeled icon submit button" type="submit">
+                                <i class="right arrow icon"></i>
+                                Next
+                            </button>
+
+                            <div class="ui tiny label" id="question_info">
+                                Q
+                                <div class="detail">{{ idx }}/{{ tidx }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="ui error tiny message"></div>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+
+    {% else %}
+
+        <div class="ui center aligned grid">
+            <div class="column" id="error_grid">
+                <div class="ui red message" id="error_msg">
+                    <div class="ui left aligned basic segment">
+                        <div class="ui header">
+                            Test not available.
+                        </div>
+                        <p>Test time already ended and it's not reachable anymore by this link.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'layout/main.html' %}
+{% block content %}
+    <div class="ui center aligned grid">
+        <div class="column" id="error_grid">
+            <div class="ui red message" id="error_msg">
+                <div class="ui left aligned basic segment">
+                    <div class="ui header">
+                        Error: {{ status }}
+                    </div>
+                    <p>{{ message }}</p>
+                    <pre id="traceback">{{ kwargs.traceback }}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
